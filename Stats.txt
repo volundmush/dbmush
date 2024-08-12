@@ -1,0 +1,11 @@
+@skip isdbref(tag(setr(1,attr_stat_parent)))={@assert/inline isdbref(tag(stor))=@pemit %#=ERROR: No storage object set!;@assert/inline isdbref(setr(0,create(Attribute Stat Parent,,t)))=@pemit %#=ERROR: Could not create code object %q1: %q0;@set %q0=INDESTRUCTIBLE NO_COMMAND;@tag/add %q1=%q0;@tel %q0=#stor;@parent %q0=#stat_parent}
+
+&BASE.MIN #attr_stat_parent=1
+&MODDED.MIN #attr_stat_parent=1
+
+@dolist/inline Strength Constitution Agility Intelligence Wisdom Spirit={th setr(!,gm_newstat(%d0),stat);@parent %q<stat>=#attr_stat_parent;@totem %q<stat>=STAT_ATTRIBUTE}
+
+th gm_newstat(Powerlevel)
+&BASE.MIN [gm_stat(Powerlevel)]=1
+
+&CALCULATE_MODDED [gm_stat(Powerlevel)]=mul(ladd(iter(searchng(TOTEMS2=A),u(%i0/CACHED,%0))),2)

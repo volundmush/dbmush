@@ -1,0 +1,29 @@
+&GET_OBJ #gfun=sqlite_query(vnum,SELECT objid FROM legacy WHERE vnum=? AND obj_type=?,,,%0,%1)
+&GFN.ROBJ #gfun=u(#gfun/GET_OBJ,%0,ROOM)
+&GFN.NOBJ #gfun=u(#gfun/GET_OBJ,%0,NPC)
+&GFN.IOBJ #gfun=u(#gfun/GET_OBJ,%0,ITEM)
+&GFN.AOBJ #gfun=u(#gfun/GET_OBJ,%0,AREA)
+
+&DIR.0 #gfun=North;n;no;nor;nort
+&DIR.1 #gfun=East;e;ea;eas
+&DIR.2 #gfun=South;s;so;sou;sout
+&DIR.3 #gfun=West;w;we;wes
+&DIR.4 #gfun=Up;u
+&DIR.5 #gfun=Down;d;do;dow
+&DIR.6 #gfun=Northwest;nw
+&DIR.7 #gfun=Northeast;ne
+&DIR.8 #gfun=Southeast;se
+&DIR.9 #gfun=Southwest;sw
+&DIR.10 #gfun=Inside;in;i
+&DIR.11 #gfun=Outside;out;i
+
+&MAKE_OBJ #gfun=[null(if(isdbref(%1),sqlite_query(vnum,INSERT INTO legacy (vnum,objid,obj_type) VALUES (?,?,?),,,%0,objid(%1),%2)))][objid(%1)]
+&GFN.RNEW #gfun=if(isobjid(setr(!,u(#gfun/ROBJ,%0),obj)),%q<obj>,if(isobjid(setr(!,u(#gfun/MAKE_OBJ,%0,objeval(#gm,dig(stripansi(%1)),3),ROOM),obj)),%q<obj>,#-1))
+&GFN.NNEW #gfun=if(isobjid(setr(!,u(#gfun/NOBJ,%0),obj)),%q<obj>,if(isobjid(setr(!,u(#gfun/MAKE_OBJ,%0,objeval(#gm,create(stripansi(%1),,t),3),NPC),obj)),%q<obj>[null([set(%q<obj>,SAFE INDESTRUCTIBLE)][totemset(%q<obj>,CHARACTER NPC PROTOTYPE)])],#-1))
+&GFN.INEW #gfun=if(isobjid(setr(!,u(#gfun/IOBJ,%0),obj)),%q<obj>,if(isobjid(setr(!,u(#gfun/MAKE_OBJ,%0,objeval(#gm,create(stripansi(%1),,t),3),ITEM),obj)),%q<obj>[null([set(%q<obj>,SAFE INDESTRUCTIBLE)][totemset(%q<obj>,ITEM PROTOTYPE)])],#-1))
+&GFN.ANEW #gfun=if(isobjid(setr(!,u(#gfun/AOBJ,%0),obj)),%q<obj>,if(isobjid(setr(!,u(#gfun/MAKE_OBJ,%0,objeval(#gm,create(stripansi(%1),,t),3),AREA),obj)),%q<obj>[null([set(%q<obj>,ZONEMASTER SAFE INDESTRUCTIBLE)][totemset(%q<obj>,REGION)])],#-1))
+&GFN.ENEW #gfun=if(isdbref(setr(!,locate(setr(!,u(#gfun/ROBJ,%1),room),first(setr(!,v(DIR.%0),dirs),;),cE),obj)),objid(%q<obj>),if(cand(isdbref(%q<room>),isdbref(setr(!,u(#gfun/ROBJ,%2),dest))),objeval(#gm,open(%q<dirs>,%q<dest>,%q<room>,e),3)))
+
+&VNUM_CREATE me=CREATE TABLE IF NOT EXISTS legacy(vnum INTEGER NOT NULL,objid VARCHAR(30) NOT NULL UNIQUE,obj_type VARCHAR(4) NOT NULL,UNIQUE(obj_type,vnum));
+
+th sqlite_query(vnum,v(VNUM_CREATE))
